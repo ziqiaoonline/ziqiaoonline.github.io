@@ -87,23 +87,28 @@
         .pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--green-400);animation:pulse 2s ease-in-out infinite}
         @keyframes pulse{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
 
+        /* WRITING */
         .writing{background:var(--slate-50)}
-        .writing-content{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
-        .writing-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:transform .35s var(--ease-out-expo),box-shadow .35s ease}
-        .writing-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.1)}
-        .writing-card.featured{display:flex}
-        .writing-card-accent{width:5px;background:linear-gradient(to bottom,var(--green-400),var(--green-600));flex-shrink:0}
-        .writing-card-inner{padding:2.25rem}
-        .writing-label{font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--green-500);background:var(--green-50);padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:12px}
-        .writing-card h3{font-family:var(--font-display);font-size:1.5rem;font-weight:400;color:var(--slate-800);margin-bottom:6px}
-        .writing-meta{font-size:.9rem;color:var(--slate-400);font-style:italic;margin-bottom:12px}
-        .writing-card p{color:var(--slate-600);line-height:1.75;font-size:1.02rem}
-        .writing-pending{color:var(--slate-500);font-family:var(--font-mono);font-size:.92rem}
-        .writing-hint{color:var(--slate-400);font-style:italic;font-size:.85rem}
-        .dot-jump{display:inline-block;font-weight:700;animation:dotBounce 1.4s infinite ease-in-out both}
-        .dot-jump:nth-child(2){animation-delay:.15s}
-        .dot-jump:nth-child(3){animation-delay:.3s}
-        @keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+        .writing-intro{text-align:center;max-width:640px;margin:0 auto 3rem;color:var(--slate-500);font-size:1.05rem;line-height:1.75}
+        .writing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1000px;margin:0 auto}
+        .writing-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:transform .35s var(--ease-out-expo),box-shadow .35s ease;display:flex;flex-direction:column}
+        .writing-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.1)}
+        .writing-card-accent{height:4px;flex-shrink:0}
+        .writing-card-accent.accent-blue{background:linear-gradient(90deg,#3b82f6,#6366f1)}
+        .writing-card-accent.accent-amber{background:linear-gradient(90deg,#f59e0b,#ef4444)}
+        .writing-card-accent.accent-green{background:linear-gradient(90deg,var(--green-400),var(--green-600))}
+        .writing-card-inner{padding:2rem;flex:1;display:flex;flex-direction:column}
+        .writing-icon{font-size:2rem;margin-bottom:14px}
+        .writing-label{font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:12px;width:fit-content}
+        .label-blue{color:#3b82f6;background:rgba(59,130,246,.08)}
+        .label-amber{color:#d97706;background:rgba(245,158,11,.08)}
+        .label-green{color:var(--green-500);background:var(--green-50)}
+        .writing-card h3{font-family:var(--font-display);font-size:1.35rem;font-weight:400;color:var(--slate-800);margin-bottom:10px}
+        .writing-card p{color:var(--slate-600);line-height:1.75;font-size:.98rem;flex:1}
+        .writing-topics{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+        .writing-topic{font-family:var(--font-mono);font-size:.72rem;color:var(--slate-500);background:var(--slate-100);padding:4px 10px;border-radius:100px}
+        .writing-status{display:flex;align-items:center;gap:8px;margin-top:16px;font-family:var(--font-mono);font-size:.78rem;color:var(--slate-400)}
+        .writing-status .pulse-dot{width:6px;height:6px}
 
         .contact{background:#fff;text-align:center}
         .contact-text{font-size:1.1rem;color:var(--slate-500);max-width:640px;margin:0 auto 2.5rem;line-height:1.85}
@@ -146,7 +151,12 @@
         @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-        @media(max-width:968px){.hero-content{flex-direction:column-reverse;text-align:center}.hero-buttons{justify-content:center}.profile-ring{width:220px;height:220px}}
+        @media(max-width:968px){
+            .hero-content{flex-direction:column-reverse;text-align:center}
+            .hero-buttons{justify-content:center}
+            .profile-ring{width:220px;height:220px}
+            .writing-grid{grid-template-columns:1fr}
+        }
         @media(max-width:768px){
             .nav-toggle{display:flex}
             .nav-menu{position:fixed;top:64px;left:0;right:0;background:var(--slate-900);flex-direction:column;align-items:center;gap:0;padding:1rem 0;transform:translateY(-120%);transition:transform .4s var(--ease-out-expo);border-bottom:1px solid var(--slate-700);z-index:199}
@@ -170,8 +180,6 @@
             .contact-btn{justify-content:center}
             .section-title{font-size:1.85rem}
             section{padding:56px 0}
-            .writing-card.featured{flex-direction:column}
-            .writing-card-accent{width:100%;height:4px}
             .terminal-body{font-size:12px;padding:14px}
         }
     </style>
@@ -219,7 +227,7 @@
                 <div class="hero-text">
                     <p class="hero-greeting">Hello, World &mdash;</p>
                     <h1 class="hero-title">I'm <span class="highlight">Qiao</span></h1>
-                    <p class="hero-subtitle">Full Stack Developer &middot; Mobile App Creator &middot; Bookworm &middot; Visual Artist</p>
+                    <p class="hero-subtitle">Bridging the gap between complex code and human-centric products.</p>
                     <p class="hero-description">passionate about building innovative applications and exploring human evolution</p>
                     <div class="hero-buttons">
                         <a href="#projects" class="btn btn-primary">View My Work</a>
@@ -275,23 +283,57 @@
     <section id="writing" class="writing">
         <div class="container">
             <h2 class="section-title">Writing &amp; Reflections</h2>
-            <div class="writing-content">
-                <div class="writing-card featured">
-                    <div class="writing-card-accent"></div>
-                    <div class="writing-card-inner">
-                        <span class="writing-label">Featured</span>
-                        <h3>Movie Reviews</h3>
-                        <p class="writing-meta">Cinema &amp; Cultural Critique</p>
-                        <p>Exploring the world through the silver screen. A collection of personal inquiries into cinematic narrative, the grammar of sight and sound, and the societal currents that flow beneath them.</p>
-                    </div>
-                </div>
+            <p class="writing-intro">Thinking out loud at the intersection of engineering, culture, and product.</p>
+            <div class="writing-grid">
+
                 <div class="writing-card">
+                    <div class="writing-card-accent accent-blue"></div>
                     <div class="writing-card-inner">
-                        <h3>Mindsets &amp; Reflections</h3>
-                        <p class="writing-pending"><span class="dot-jump">.</span><span class="dot-jump">.</span><span class="dot-jump">.</span> Coffee in, thoughts processing.</p>
-                        <small class="writing-hint">Initial commit pending...</small>
+                        <div class="writing-icon">&#128295;</div>
+                        <span class="writing-label label-blue">Series</span>
+                        <h3>Technical Deep Dives</h3>
+                        <p>Architecture decisions, migration war stories, and the craft of building systems that actually work at scale.</p>
+                        <div class="writing-topics">
+                            <span class="writing-topic">system design</span>
+                            <span class="writing-topic">migrations</span>
+                            <span class="writing-topic">debugging</span>
+                        </div>
+                        <div class="writing-status"><span class="pulse-dot"></span> First post brewing...</div>
                     </div>
                 </div>
+
+                <div class="writing-card">
+                    <div class="writing-card-accent accent-amber"></div>
+                    <div class="writing-card-inner">
+                        <div class="writing-icon">&#127758;</div>
+                        <span class="writing-label label-amber">Series</span>
+                        <h3>Tech &times; Society</h3>
+                        <p>What happens when algorithms meet anthropology. Exploring how technology reshapes culture, identity, and what it means to evolve.</p>
+                        <div class="writing-topics">
+                            <span class="writing-topic">AI &amp; culture</span>
+                            <span class="writing-topic">human evolution</span>
+                            <span class="writing-topic">digital life</span>
+                        </div>
+                        <div class="writing-status"><span class="pulse-dot"></span> Ideas composting...</div>
+                    </div>
+                </div>
+
+                <div class="writing-card">
+                    <div class="writing-card-accent accent-green"></div>
+                    <div class="writing-card-inner">
+                        <div class="writing-icon">&#128640;</div>
+                        <span class="writing-label label-green">Series</span>
+                        <h3>Product Narrative</h3>
+                        <p>The space between code and users. How products are shaped, shipped, and the human stories behind building things people actually use.</p>
+                        <div class="writing-topics">
+                            <span class="writing-topic">product thinking</span>
+                            <span class="writing-topic">UX decisions</span>
+                            <span class="writing-topic">ship logs</span>
+                        </div>
+                        <div class="writing-status"><span class="pulse-dot"></span> Outline in progress...</div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
@@ -385,8 +427,10 @@
             },
             writing: function() {
                 scrollToSection('writing');
-                return '<div class="terminal-line terminal-green">Navigating to Writing section...</div>' +
-                '<div class="terminal-line">Exploring cinema, culture, and consciousness through words...</div>';
+                return '<div class="terminal-line terminal-green">Writing Series:</div>' +
+                '<div class="terminal-line">  <span class="terminal-cyan">Technical Deep Dives</span> - Architecture, migrations, debugging</div>' +
+                '<div class="terminal-line">  <span class="terminal-cyan">Tech x Society</span>      - Algorithms meet anthropology</div>' +
+                '<div class="terminal-line">  <span class="terminal-cyan">Product Narrative</span>    - Code to users, ship logs</div>';
             },
             contact: function() {
                 scrollToSection('contact');
@@ -402,7 +446,7 @@
                 '<div class="terminal-line">  REST APIs, Git, Mobile Development</div>' +
                 '<div class="terminal-line"></div>' +
                 '<div class="terminal-line terminal-green">Languages:</div>' +
-                '<div class="terminal-line">  English, Mandarin Chinese, Spanish, French</div>';
+                '<div class="terminal-line">  English, Mandarin Chinese</div>';
             },
             whoami: function() {
                 return '<div class="terminal-line terminal-green">Qiao</div>' +
