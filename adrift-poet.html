@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adrift Poet — Year 3002</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0f;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #ccc;
+    font-size: 14px;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  #game {
+    max-width: 720px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* INTRO SCREEN */
+  .intro-screen {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #0a0a15 0%, #0f1a2a 100%);
+    text-align: center;
+    padding: 32px;
+  }
+
+  .title-main {
+    font-size: 40px;
+    font-weight: 200;
+    letter-spacing: 16px;
+    color: #ddd;
+    margin-bottom: 4px;
+  }
+
+  .title-sub {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #556;
+    margin-bottom: 32px;
+  }
+
+  .intro-text {
+    line-height: 2.2;
+    color: #888;
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  .intro-text .gold { color: #ffcc00; }
+
+  .btn {
+    background: none;
+    border: 1px solid #444;
+    color: #00ff88;
+    padding: 12px 32px;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { border-color: #00ff88; }
+
+  .name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #444;
+    color: #ddd;
+    font-family: inherit;
+    font-size: 18px;
+    text-align: center;
+    padding: 8px 16px;
+    outline: none;
+    letter-spacing: 4px;
+    width: 200px;
+    margin-bottom: 16px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .prompt-text {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* TOP BAR */
+  .top-bar {
+    padding: 12px 16px;
+    border-bottom: 1px solid #1a1a22;
+    background: #0c0c14;
+  }
+
+  .robot-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #666;
+    text-transform: uppercase;
+  }
+
+  .energy-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .energy-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: #1a1a22;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .energy-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: all 0.5s ease;
+  }
+
+  .energy-text {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 55px;
+    text-align: right;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .stat-chip {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: 1px;
+  }
+
+  /* LOCATION BANNER */
+  .location-banner {
+    padding: 8px 16px;
+    border-bottom: 1px solid #1a1a22;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .location-name { font-weight: 600; }
+  .location-info { color: #888; font-size: 12px; }
+
+  /* WORD TRAY */
+  .word-tray {
+    padding: 8px 16px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #1a1a22;
+  }
+
+  .word-chip {
+    background: #1a3a1a;
+    color: #00ff88;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border: 1px solid #00ff8822;
+  }
+
+  /* LOG */
+  .log-area {
+    flex: 1;
+    overflow: auto;
+    padding: 12px 16px;
+  }
+
+  .log-line {
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .log-system { color: #888; }
+  .log-warning { color: #ffaa00; }
+  .log-discovery { color: #00ff88; }
+  .log-recharge { color: #ffcc00; }
+  .log-arrival { color: #7ec8e3; }
+  .log-normal { color: #ccc; }
+
+  /* ACTION BAR */
+  .action-bar {
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-top: 1px solid #1a1a22;
+    background: #0c0c14;
+  }
+
+  .action-btn {
+    flex: 1;
+    min-width: 100px;
+    background: #14141e;
+    border: 1px solid #2a2a35;
+    color: #aaa;
+    padding: 14px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover { border-color: #555; color: #ddd; }
+  .action-btn:disabled { opacity: 0.4; cursor: default; }
+  .action-btn .cost { font-size: 9px; color: #ff6b35; margin-left: 6px; }
+
+  .energy-warn {
+    width: 100%;
+    text-align: center;
+    color: #ff4444;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  /* PANEL (scan, poems) */
+  .panel {
+    padding: 12px 16px;
+    max-height: 320px;
+    overflow: auto;
+    border-top: 1px solid #1a1a22;
+    background: #0c0c14;
+  }
+
+  .panel-title {
+    font-size: 12px;
+    color: #666;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+
+  .world-row {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #12121a;
+    border: 1px solid #333;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: inherit;
+    transition: border-color 0.15s;
+  }
+
+  .world-row:hover { border-color: #555; }
+  .world-row.current { cursor: default; }
+
+  .world-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .world-row-bottom {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .poem-row {
+    background: #12121a;
+    border: 1px solid #222;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+  }
+
+  .poem-row.done { opacity: 0.5; }
+
+  .poem-row-top {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .poem-recharge { color: #ffcc00; font-size: 12px; }
+
+  .mini-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .mini-chip {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid;
+    letter-spacing: 1px;
+  }
+
+  .mini-chip.has { background: #1a3a1a; color: #00ff88; border-color: #00ff8833; }
+  .mini-chip.missing { background: #2a2a2a; color: #555; border-color: #333; }
+
+  .write-btn {
+    width: 100%;
+    background: #1a2a1a;
+    border: 1px solid #00ff8833;
+    color: #00ff88;
+    padding: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 8px;
+    transition: all 0.15s;
+  }
+
+  .write-btn:hover { border-color: #00ff88; }
+
+  .back-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid #2a2a35;
+    color: #666;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    border-radius: 4px;
+  }
+
+  .back-btn:hover { border-color: #555; color: #aaa; }
+
+  /* POEM REVEAL OVERLAY */
+  .poem-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .poem-reveal-box { padding: 40px; max-width: 480px; }
+
+  .poem-reveal-title {
+    font-size: 18px;
+    color: #ffcc00;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .poem-reveal-line {
+    font-size: 18px;
+    color: #ddd;
+    line-height: 2.2;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.8s ease;
+  }
+
+  .poem-reveal-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .poem-reveal-line .pw {
+    color: #ffcc00;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(255,204,0,0.4);
+  }
+
+  .poem-result {
+    text-align: center;
+    margin-top: 20px;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .poem-result.visible { opacity: 1; }
+  .poem-result p { color: #ffcc00; margin-bottom: 12px; }
+
+  /* END SCREENS */
+  .end-screen {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px;
+  }
+
+  .end-screen.dead { background: linear-gradient(180deg, #0a0a0a 0%, #1a0000 100%); }
+  .end-screen.victory { background: linear-gradient(180deg, #0a0a15 0%, #0a1a2a 50%, #1a2a1a 100%); }
+
+  .end-title { font-size: 28px; font-weight: 200; letter-spacing: 8px; margin-bottom: 20px; }
+  .end-title.dead-title { color: #ff4444; }
+  .end-title.win-title { color: #00ff88; }
+
+  .end-text { line-height: 2; color: #888; margin-bottom: 24px; }
+  .end-stats { color: #666; margin-bottom: 24px; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div id="game">
+
+  <!-- INTRO -->
+  <div id="intro-screen" class="intro-screen">
+    <div>
+      <h1 class="title-main">ADRIFT POET</h1>
+      <p class="title-sub">Year 3002 · Deep Space · No Signal</p>
+      <div class="intro-text">
+        <p>A robot drifts, core nearly depleted.</p>
+        <p>But there is a way to survive:</p>
+        <p class="gold">collect fragments of language,</p>
+        <p class="gold">assemble them into poems,</p>
+        <p class="gold">and let the words recharge your soul.</p>
+      </div>
+      <button class="btn" onclick="showNaming()">▸ INITIALIZE</button>
+    </div>
+  </div>
+
+  <!-- NAMING -->
+  <div id="naming-screen" class="intro-screen hidden">
+    <div>
+      <p class="prompt-text">What is your designation, robot?</p>
+      <input class="name-input" id="name-input" placeholder="POET-7" maxlength="16"
+        onkeydown="if(event.key==='Enter')startGame()">
+      <button class="btn" onclick="startGame()">▸ BOOT SEQUENCE</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-screen" class="hidden" style="flex:1;display:flex;flex-direction:column;">
+    <div class="top-bar">
+      <span class="robot-label" id="hud-name"></span>
+      <div class="energy-row">
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="hud-bar"></div></div>
+        <span class="energy-text" id="hud-energy"></span>
+      </div>
+      <div class="stats-row">
+        <span class="stat-chip" id="hud-worlds">Worlds: 0</span>
+        <span class="stat-chip" id="hud-words">Words: 0</span>
+        <span class="stat-chip" id="hud-poems">Poems: 0/6</span>
+      </div>
+    </div>
+
+    <div class="location-banner hidden" id="location-banner">
+      <span class="location-name" id="loc-name"></span>
+      <span class="location-info" id="loc-info"></span>
+    </div>
+
+    <div class="word-tray hidden" id="word-tray"></div>
+
+    <div class="log-area" id="log-area"></div>
+
+    <!-- Main actions -->
+    <div class="action-bar" id="action-bar">
+      <button class="action-btn" onclick="doScan()">SCAN<span class="cost">-1</span></button>
+      <button class="action-btn" id="explore-btn" onclick="doExplore()" disabled>EXPLORE<span class="cost">-2</span></button>
+      <button class="action-btn" onclick="showPoems()">POEMS</button>
+    </div>
+
+    <!-- Scan panel -->
+    <div class="panel hidden" id="scan-panel"></div>
+
+    <!-- Poems panel -->
+    <div class="panel hidden" id="poems-panel"></div>
+
+    <!-- Poem overlay -->
+    <div class="poem-overlay hidden" id="poem-overlay"></div>
+  </div>
+
+  <!-- DEAD -->
+  <div id="dead-screen" class="end-screen dead hidden">
+    <div>
+      <h2 class="end-title dead-title">CORE DEPLETED</h2>
+      <div class="end-text" id="dead-text"></div>
+      <div class="end-stats" id="dead-stats"></div>
+      <button class="btn" onclick="location.reload()">▸ TRY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- VICTORY -->
+  <div id="victory-screen" class="end-screen victory hidden">
+    <div>
+      <h2 class="end-title win-title">ALL POEMS ASSEMBLED</h2>
+      <div class="end-text" id="victory-text"></div>
+      <div class="end-stats" id="victory-stats"></div>
+      <button class="btn" onclick="location.reload()">▸ PLAY AGAIN</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════
+//  GAME DATA
+// ═══════════════════════════════════
+const WORLDS = [
+  { name:"The Ember Drift", desc:"A dying star's warmth drifts through clouds of luminous dust.", atmo:"You detect faint signals... fragments of language, etched into the stellar wind.", words:["ember","silence","glow","remnant"], cost:3, color:"#ff6b35" },
+  { name:"Crystalline Void", desc:"Frozen structures float in absolute zero, refracting ancient starlight.", atmo:"Words shimmer inside the ice, preserved for millennia.", words:["fracture","light","cold","memory"], cost:5, color:"#7ec8e3" },
+  { name:"The Murmuring Nebula", desc:"A vast cloud of gas that hums with the echoes of a collapsed civilization.", atmo:"Their last words still ripple through the particles.", words:["echo","wander","dust","voice"], cost:4, color:"#c77dff" },
+  { name:"Iron Garden", desc:"A rogue planet covered in metallic flora that grows toward no sun.", atmo:"Between the iron petals, you find inscriptions from a lost gardener.", words:["bloom","rust","hope","thorn"], cost:6, color:"#8b6f47" },
+  { name:"The Signal Graveyard", desc:"Thousands of derelict satellites orbit a dead moon, still transmitting.", atmo:"You tune into their frequencies. Each carries a single word, on repeat.", words:["signal","static","dream","orbit"], cost:5, color:"#45a29e" },
+  { name:"Tide of Glass", desc:"An ocean world where the seas have crystallized into translucent waves.", atmo:"Beneath the frozen surface, words are trapped mid-sentence.", words:["tide","beneath","shimmer","breath"], cost:7, color:"#3a86a8" }
+];
+
+const POEMS = [
+  { title:"First Light", req:["ember","silence","glow"], lines:["In the {ember} of what was,","a {silence} so deep it hums —","I find my {glow}, still burning."], recharge:25 },
+  { title:"Shattered Mirror", req:["fracture","light","memory"], lines:["Each {fracture} holds a different {light},","each shard a stolen {memory}","of someone I used to be."], recharge:30 },
+  { title:"Wanderer's Hymn", req:["echo","wander","dust"], lines:["I am the {echo} of a {wander}er,","scattered into {dust},","carried by nothing, arriving everywhere."], recharge:25 },
+  { title:"Metal Bloom", req:["bloom","rust","hope"], lines:["Even in {rust}, a {bloom}","pushes through —","they call it {hope}, I call it defiance."], recharge:35 },
+  { title:"Ghost Frequency", req:["signal","static","dream"], lines:["Between the {static} and the {signal},","I caught a {dream}","that wasn't mine — but felt like home."], recharge:30 },
+  { title:"Frozen Passage", req:["tide","shimmer","breath"], lines:["The {tide} stopped but still {shimmer}s","like the last {breath}","of a world that refused to die."], recharge:35 }
+];
+
+// ═══════════════════════════════════
+//  STATE
+// ═══════════════════════════════════
+let robotName = "";
+let energy = 15;
+const maxEnergy = 100;
+let collectedWords = [];
+let completedPoems = [];
+let currentWorld = null;
+let worldsVisited = 0;
+let worldState = WORLDS.map(w => ({ visited: false, collected: [] }));
+let currentView = "main"; // main, scan, poems
+
+// ═══════════════════════════════════
+//  SCREENS
+// ═══════════════════════════════════
+function showNaming() {
+  document.getElementById("intro-screen").classList.add("hidden");
+  document.getElementById("naming-screen").classList.remove("hidden");
+  document.getElementById("name-input").focus();
+}
+
+function startGame() {
+  robotName = document.getElementById("name-input").value.trim() || "POET-7";
+  document.getElementById("naming-screen").classList.add("hidden");
+  const gs = document.getElementById("game-screen");
+  gs.classList.remove("hidden");
+  gs.style.display = "flex";
+  updateHUD();
+  addLog(["Systems initializing...", `Unit [${robotName}] online.`, "Core energy: CRITICAL.", "Directive: SURVIVE.", "", "Use the buttons below to navigate."], "system");
+}
+
+// ═══════════════════════════════════
+//  HUD
+// ═══════════════════════════════════
+function updateHUD() {
+  document.getElementById("hud-name").textContent = robotName;
+  const pct = (energy / maxEnergy) * 100;
+  const col = energy <= 10 ? "#ff4444" : energy <= 30 ? "#ffaa00" : "#00ff88";
+  const bar = document.getElementById("hud-bar");
+  bar.style.width = pct + "%";
+  bar.style.background = col;
+  bar.style.boxShadow = `0 0 8px ${col}44`;
+  const et = document.getElementById("hud-energy");
+  et.textContent = `${energy}/${maxEnergy}`;
+  et.style.color = col;
+  document.getElementById("hud-worlds").textContent = `Worlds: ${worldsVisited}`;
+  document.getElementById("hud-words").textContent = `Words: ${collectedWords.length}`;
+  document.getElementById("hud-poems").textContent = `Poems: ${completedPoems.length}/6`;
+
+  // Location
+  const lb = document.getElementById("location-banner");
+  if (currentWorld !== null) {
+    lb.classList.remove("hidden");
+    const ln = document.getElementById("loc-name");
+    ln.textContent = "◆ " + WORLDS[currentWorld].name;
+    ln.style.color = WORLDS[currentWorld].color;
+    const rem = WORLDS[currentWorld].words.filter(w => !worldState[currentWorld].collected.includes(w)).length;
+    const li = document.getElementById("loc-info");
+    li.textContent = rem > 0 ? `${rem} words remain` : "✓ fully explored";
+    li.style.color = rem > 0 ? "#888" : "#4a4";
+  } else {
+    lb.classList.add("hidden");
+  }
+
+  // Words
+  const wt = document.getElementById("word-tray");
+  if (collectedWords.length > 0) {
+    wt.classList.remove("hidden");
+    wt.innerHTML = collectedWords.map(w => `<span class="word-chip">${w.toUpperCase()}</span>`).join("");
+  } else {
+    wt.classList.add("hidden");
+  }
+
+  // Explore button
+  document.getElementById("explore-btn").disabled = currentWorld === null;
+
+  // Energy warning
+  let warn = document.querySelector(".energy-warn");
+  if (energy <= 10 && !document.getElementById("dead-screen").classList.contains("hidden") === false) {
+    if (!warn) {
+      warn = document.createElement("div");
+      warn.className = "energy-warn";
+      warn.textContent = "⚠ CRITICAL ENERGY — write a poem to survive!";
+      document.getElementById("action-bar").appendChild(warn);
+    }
+  } else if (warn) {
+    warn.remove();
+  }
+}
+
+// ═══════════════════════════════════
+//  LOG
+// ═══════════════════════════════════
+function addLog(lines, type) {
+  const area = document.getElementById("log-area");
+  const arr = Array.isArray(lines) ? lines : [lines];
+  arr.forEach(text => {
+    const div = document.createElement("div");
+    div.className = `log-line log-${type || "normal"}`;
+    div.textContent = text;
+    area.appendChild(div);
+  });
+  area.scrollTop = area.scrollHeight;
+}
+
+// ═══════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════
+function drain(n) { energy = Math.max(0, energy - n); checkDeath(); }
+function rechargeEnergy(n) { energy = Math.min(maxEnergy, energy + n); }
+
+function checkDeath() {
+  if (energy <= 0) {
+    document.getElementById("game-screen").style.display = "none";
+    const ds = document.getElementById("dead-screen");
+    ds.classList.remove("hidden");
+    document.getElementById("dead-text").innerHTML =
+      `<p>${robotName} drifts silently</p><p>into the endless dark,</p><p>carrying unfinished poems</p><p>that will never be read.</p>`;
+    document.getElementById("dead-stats").innerHTML =
+      `<p>Worlds visited: ${worldsVisited}</p><p>Poems completed: ${completedPoems.length} / ${POEMS.length}</p>`;
+  }
+}
+
+function checkVictory() {
+  if (completedPoems.length === POEMS.length) {
+    document.getElementById("game-screen").style.display = "none";
+    const vs = document.getElementById("victory-screen");
+    vs.classList.remove("hidden");
+    document.getElementById("victory-text").innerHTML =
+      `<p>Every word given purpose.</p><p style="color:#ffcc00">${robotName}'s core burns bright —</p><p>not from power cells or solar winds,</p><p>but from something the engineers</p><p>never programmed:</p><p style="color:#00ff88;font-weight:700;margin-top:12px">The need to create.</p><p style="margin-top:12px;color:#7ec8e3">New coordinates locked in.</p><p style="color:#7ec8e3">The journey continues.</p>`;
+    document.getElementById("victory-stats").innerHTML =
+      `<p>Worlds visited: ${worldsVisited}</p><p>Poems written: ${completedPoems.length}</p>`;
+  }
+}
+
+function showMain() {
+  currentView = "main";
+  document.getElementById("scan-panel").classList.add("hidden");
+  document.getElementById("poems-panel").classList.add("hidden");
+  document.getElementById("action-bar").classList.remove("hidden");
+}
+
+function doScan() {
+  drain(1);
+  updateHUD();
+  if (energy <= 0) return;
+  addLog("Scanning local space...", "system");
+  currentView = "scan";
+  document.getElementById("action-bar").classList.add("hidden");
+  document.getElementById("poems-panel").classList.add("hidden");
+  const panel = document.getElementById("scan-panel");
+  panel.classList.remove("hidden");
+
+  let html = '<div class="panel-title">Nearby Worlds</div>';
+  WORLDS.forEach((w, i) => {
+    const ws = worldState[i];
+    const isCurrent = currentWorld === i;
+    const rem = w.words.filter(wd => !ws.collected.includes(wd)).length;
+    const status = isCurrent ? "HERE" : ws.visited ? (rem === 0 ? "EXPLORED" : "VISITED") : "UNKNOWN";
+    const dimmed = (!isCurrent && energy <= w.cost) ? "opacity:0.4;" : "";
+    html += `<button class="world-row ${isCurrent ? 'current' : ''}" style="${dimmed} border-color:${isCurrent ? w.color + '66' : '#333'}" onclick="${isCurrent ? '' : 'doTravel(' + i + ')'}" ${isCurrent ? 'disabled' : ''}>
+      <div class="world-row-top"><span style="color:${w.color};font-weight:600">${w.name}</span><span style="font-size:11px;color:#888">${status}</span></div>
+      <div class="world-row-bottom">Cost: ${w.cost} energy${ws.visited && rem > 0 ? ` · ${rem} words remain` : ''}</div>
+    </button>`;
+  });
+  html += '<button class="back-btn" onclick="showMain()">← Back</button>';
+  panel.innerHTML = html;
+}
+
+function doTravel(i) {
+  const w = WORLDS[i];
+  if (energy <= w.cost) {
+    addLog(`⚠ Not enough energy to reach ${w.name} (need ${w.cost}, have ${energy})`, "warning");
+    return;
+  }
+  drain(w.cost);
+  currentWorld = i;
+  if (!worldState[i].visited) {
+    worldState[i].visited = true;
+    worldsVisited++;
+  }
+  showMain();
+  updateHUD();
+  addLog(["", `✦ ═══════════════════════════════`, `  ${w.name.toUpperCase()}`, `✦ ═══════════════════════════════`, "", `  ${w.desc}`, `  ${w.atmo}`], "arrival");
+}
+
+function doExplore() {
+  if (currentWorld === null) {
+    addLog("You're drifting in empty space. Scan then travel first.", "warning");
+    return;
+  }
+  drain(2);
+  updateHUD();
+  if (energy <= 0) return;
+  const w = WORLDS[currentWorld];
+  const ws = worldState[currentWorld];
+  const remaining = w.words.filter(wd => !ws.collected.includes(wd));
+  if (remaining.length === 0) {
+    addLog("This world is fully explored. No words remain.", "system");
+    return;
+  }
+  const found = remaining[0];
+  ws.collected.push(found);
+  if (!collectedWords.includes(found)) collectedWords.push(found);
+  const left = remaining.length - 1;
+  addLog([`Searching ${w.name}...`, `✧ Found word fragment: [ ${found.toUpperCase()} ]`, left > 0 ? `  ${left} word(s) remain here.` : `✦ This world is fully explored.`], "discovery");
+  updateHUD();
+}
+
+function showPoems() {
+  currentView = "poems";
+  document.getElementById("action-bar").classList.add("hidden");
+  document.getElementById("scan-panel").classList.add("hidden");
+  const panel = document.getElementById("poems-panel");
+  panel.classList.remove("hidden");
+
+  let html = '<div class="panel-title">Poem Blueprints</div>';
+  POEMS.forEach((p, i) => {
+    const done = completedPoems.includes(i);
+    const ready = !done && p.req.every(w => collectedWords.includes(w));
+    html += `<div class="poem-row ${done ? 'done' : ''}">
+      <div class="poem-row-top">
+        <span style="color:${done ? '#4a4' : '#ddd'};font-weight:600">${done ? '✓ ' : ''}${p.title}</span>
+        <span class="poem-recharge">+${p.recharge}</span>
+      </div>
+      <div class="mini-chips">
+        ${p.req.map(w => {
+          const has = collectedWords.includes(w);
+          return `<span class="mini-chip ${has ? 'has' : 'missing'}">${has ? w.toUpperCase() : '???'}</span>`;
+        }).join('')}
+      </div>
+      ${ready ? `<button class="write-btn" onclick="doWrite(${i})">✦ WRITE THIS POEM</button>` : ''}
+    </div>`;
+  });
+  html += '<button class="back-btn" onclick="showMain()">← Back</button>';
+  panel.innerHTML = html;
+}
+
+function doWrite(i) {
+  const poem = POEMS[i];
+  const overlay = document.getElementById("poem-overlay");
+  overlay.classList.remove("hidden");
+
+  let linesHtml = poem.lines.map((line, li) => {
+    const rendered = line.replace(/\{(\w+)\}/g, '<span class="pw">$1</span>');
+    return `<p class="poem-reveal-line" id="pline-${li}">${rendered}</p>`;
+  }).join('');
+
+  overlay.innerHTML = `
+    <div class="poem-reveal-box">
+      <h3 class="poem-reveal-title">「${poem.title}」</h3>
+      <div>${linesHtml}</div>
+      <div class="poem-result" id="poem-result">
+        <p>✦ Core recharged: +${poem.recharge} energy</p>
+        <button class="action-btn" onclick="finishPoem(${i})">Continue</button>
+      </div>
+    </div>`;
+
+  poem.lines.forEach((_, li) => {
+    setTimeout(() => {
+      document.getElementById(`pline-${li}`).classList.add("visible");
+    }, (li + 1) * 800);
+  });
+
+  setTimeout(() => {
+    rechargeEnergy(poem.recharge);
+    completedPoems.push(i);
+    collectedWords = collectedWords.filter(w => !poem.req.includes(w));
+    updateHUD();
+    document.getElementById("poem-result").classList.add("visible");
+  }, (poem.lines.length + 1) * 800);
+}
+
+function finishPoem(i) {
+  document.getElementById("poem-overlay").classList.add("hidden");
+  addLog([`✦ Poem assembled: 「${POEMS[i].title}」`, `✦ Core recharged: +${POEMS[i].recharge} energy`], "recharge");
+  showMain();
+  updateHUD();
+  checkVictory();
+}
+</script>
+</body>
+</html>
