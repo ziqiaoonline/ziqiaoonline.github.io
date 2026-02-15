@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anvil & Hammer — Digital Diary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(170deg, #1A120B 0%, #0D0906 40%, #1A120B 100%);
+    color: #C4A882;
+    font-family: 'Source Serif 4', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #3D2E1F; border-radius: 2px; }
+
+  /* Animations */
+  @keyframes sparkRise {
+    0% { opacity: 0; transform: translateY(0) scale(1); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-60px) scale(0); }
+  }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes hammerStrike {
+    0% { transform: rotate(0deg) translateY(0); }
+    30% { transform: rotate(-25deg) translateY(-10px); }
+    60% { transform: rotate(5deg) translateY(2px); }
+    100% { transform: rotate(0deg) translateY(0); }
+  }
+  @keyframes strikeFlash {
+    0% { opacity: 0; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0; }
+  }
+
+  /* Layout */
+  .view { display: none; animation: fadeSlideUp 0.5s ease; }
+  .view.active { display: flex; }
+
+  /* HOME */
+  #home-view {
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px 24px;
+    min-height: 100vh;
+  }
+
+  .header { text-align: center; margin-bottom: 40px; }
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .title-row h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    color: #E8D5BC;
+  }
+  .epigraph {
+    font-size: 13px;
+    color: #8B7355;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* Streak */
+  .streak-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 40px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .streak-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid #3D2E1F;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 40%, #2A1F14 0%, #1A120B 100%);
+    box-shadow: 0 0 40px rgba(212,165,116,0.08), inset 0 0 20px rgba(0,0,0,0.5);
+  }
+  .streak-number {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 42px;
+    font-weight: 900;
+    color: #E8D5BC;
+    line-height: 1;
+  }
+  .streak-label {
+    font-size: 11px;
+    color: #8B7355;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Week Tracker */
+  .week-tracker {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+  .day-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    background: #2A1F14;
+    border: 2px solid transparent;
+  }
+  .dot.filled { background: #D4A574; box-shadow: 0 0 8px rgba(212,165,116,0.3); }
+  .dot.strike-dot {
+    background: linear-gradient(135deg, #FF6B35, #FFD700);
+    box-shadow: 0 0 12px rgba(255,107,53,0.5);
+  }
+  .dot.today { background: transparent; border: 2px solid #D4A574; }
+  .dot.today.filled { background: #D4A574; border-color: #D4A574; }
+  .day-label {
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #4A3A2A;
+  }
+  .day-label.active { color: #8B7355; }
+  .day-label.today-label { color: #D4A574; font-weight: 600; }
+
+  .status-text {
+    font-size: 14px;
+    color: #8B7355;
+    text-align: center;
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 280px;
+  }
+
+  /* Buttons */
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 280px;
+  }
+  .primary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 12px;
+    color: #E8D5BC;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, #5A4530, #3D2E1F);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .primary-btn.can-strike {
+    background: linear-gradient(135deg, #FF6B35, #FFB347);
+    box-shadow: 0 4px 24px rgba(255,107,53,0.4);
+  }
+  .secondary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: 1px solid #3D2E1F;
+    border-radius: 12px;
+    background: transparent;
+    color: #8B7355;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .strike-badge {
+    font-size: 11px;
+    background: #2A1A0E;
+    padding: 2px 8px;
+    border-radius: 8px;
+    color: #FF6B35;
+  }
+
+  /* Forge bottom */
+  .forge-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .ember-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #FF6B3530, transparent);
+    margin-bottom: 8px;
+  }
+  .spark {
+    position: absolute;
+    bottom: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #FF6B35;
+    opacity: 0;
+    animation: sparkRise 1.2s ease-out infinite;
+  }
+
+  /* WRITE / STRIKE VIEW */
+  #write-view, #strike-view {
+    flex-direction: column;
+    padding: 24px;
+    min-height: 100vh;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .back-btn {
+    background: none;
+    border: none;
+    color: #8B7355;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .write-header {
+    text-align: center;
+    margin-bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .write-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: #E8D5BC;
+  }
+  .write-title.strike-title {
+    background: linear-gradient(135deg, #FF6B35, #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .write-date { font-size: 13px; color: #6B5B4F; }
+  .write-subtitle {
+    font-size: 14px;
+    color: #8B7355;
+    font-style: italic;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+  .write-subtitle.strike-sub { color: #FFB347; }
+
+  textarea {
+    width: 100%;
+    background: #140E08;
+    border: 1px solid #2A1F14;
+    border-radius: 12px;
+    color: #C4A882;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.8;
+    padding: 20px;
+    resize: vertical;
+    min-height: 200px;
+    transition: border-color 0.3s ease;
+  }
+  textarea::placeholder { color: #6B5B4F; }
+  textarea:focus { outline: none; border-color: #3D2E1F; }
+  textarea.strike-ta { border-color: #FF6B3540; box-shadow: inset 0 0 30px rgba(255,107,53,0.05); }
+
+  .write-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+  }
+  .char-count { font-size: 12px; color: #4A3A2A; }
+  .save-btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #5A4530, #3D2E1F);
+    color: #E8D5BC;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .save-btn:disabled { opacity: 0.4; cursor: default; }
+  .save-btn.strike-save {
+    background: linear-gradient(135deg, #FF6B35, #FFB347);
+  }
+
+  /* HISTORY VIEW */
+  #history-view {
+    flex-direction: column;
+    padding: 24px;
+    min-height: 100vh;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .history-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: #E8D5BC;
+    margin-bottom: 24px;
+  }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: #140E08;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+    width: 100%;
+    border-left: 3px solid transparent;
+    color: inherit;
+    font-family: inherit;
+  }
+  .history-item.strike-item { border-left-color: #FF6B35; }
+  .history-item:hover { background: #1A120B; }
+  .history-item-date { font-size: 12px; color: #8B7355; display: block; margin-bottom: 4px; }
+  .history-item-preview { font-size: 14px; color: #C4A882; line-height: 1.4; display: block; }
+
+  .history-card {
+    background: #140E08;
+    border-radius: 12px;
+    padding: 20px;
+    animation: fadeSlideUp 0.3s ease;
+  }
+  .history-card.strike-card { border-left: 3px solid #FF6B35; }
+  .history-card.bear-card { border-left: 3px solid #D4A574; }
+  .history-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .history-card-date { font-size: 13px; color: #8B7355; }
+  .strike-tag {
+    font-size: 11px;
+    background: #2A1A0E;
+    padding: 3px 10px;
+    border-radius: 8px;
+    color: #FF6B35;
+  }
+  .history-card-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #C4A882;
+    white-space: pre-wrap;
+  }
+  .empty-text {
+    font-size: 14px;
+    color: #6B5B4F;
+    font-style: italic;
+    text-align: center;
+    margin-top: 60px;
+  }
+  .back-to-list {
+    background: none;
+    border: none;
+    color: #8B7355;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+  /* Flash overlay */
+  .strike-flash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, #FF6B35 0%, transparent 70%);
+    animation: strikeFlash 1.5s ease-out forwards;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* Hammer animation */
+  .hammer-animate { animation: hammerStrike 0.6s ease; }
+
+  /* Nav link back to portfolio */
+  .portfolio-link {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    color: #6B5B4F;
+    text-decoration: none;
+    font-size: 13px;
+    font-family: 'Source Serif 4', Georgia, serif;
+    transition: color 0.2s;
+    z-index: 10;
+  }
+  .portfolio-link:hover { color: #D4A574; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="portfolio-link">← Portfolio</a>
+
+<!-- ============ HOME ============ -->
+<div id="home-view" class="view active">
+  <div class="header">
+    <div class="title-row">
+      <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
+        <path d="M12 38h40v6H12z" fill="#D4A574"/>
+        <path d="M8 44h48v4H8z" fill="#C49464"/>
+        <path d="M20 48h24v8H20z" fill="#B48454"/>
+        <path d="M16 28h36c2 0 4 2 4 4v6H12v-6c0-2 2-4 4-4z" fill="#E4B584"/>
+        <path d="M44 20h12v8H44z" fill="#D4A574" rx="2"/>
+      </svg>
+      <h1>Anvil & Hammer</h1>
+      <svg id="home-hammer" width="32" height="32" viewBox="0 0 64 64" fill="none">
+        <rect x="28" y="24" width="6" height="32" rx="2" fill="#8B6914"/>
+        <rect x="14" y="8" width="34" height="18" rx="3" fill="#7A7A7A"/>
+        <rect x="14" y="8" width="34" height="4" rx="2" fill="#8A8A8A" opacity="0.5"/>
+      </svg>
+    </div>
+    <p class="epigraph">When you are the anvil, bear — When you are the hammer, strike.</p>
+  </div>
+
+  <div class="streak-section">
+    <div class="streak-circle">
+      <span class="streak-number" id="streak-num">0</span>
+      <span class="streak-label">day streak</span>
+    </div>
+    <div class="week-tracker" id="week-tracker"></div>
+    <p class="status-text" id="status-text"></p>
+  </div>
+
+  <div class="actions" id="home-actions"></div>
+
+  <div class="forge-bottom">
+    <div class="ember-line"></div>
+    <div style="position:relative;height:40px;width:100%">
+      <div class="spark" style="left:10%;animation-delay:0s"></div>
+      <div class="spark" style="left:25%;animation-delay:0.3s"></div>
+      <div class="spark" style="left:40%;animation-delay:0.6s"></div>
+      <div class="spark" style="left:55%;animation-delay:0.9s"></div>
+      <div class="spark" style="left:70%;animation-delay:1.2s"></div>
+      <div class="spark" style="left:85%;animation-delay:1.5s"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WRITE (BEAR) ============ -->
+<div id="write-view" class="view">
+  <button class="back-btn" onclick="showView('home')">← Back</button>
+  <div class="write-header">
+    <svg width="40" height="40" viewBox="0 0 64 64" fill="none">
+      <path d="M12 38h40v6H12z" fill="#D4A574"/>
+      <path d="M8 44h48v4H8z" fill="#C49464"/>
+      <path d="M20 48h24v8H20z" fill="#B48454"/>
+      <path d="M16 28h36c2 0 4 2 4 4v6H12v-6c0-2 2-4 4-4z" fill="#E4B584"/>
+      <path d="M44 20h12v8H44z" fill="#D4A574" rx="2"/>
+    </svg>
+    <h2 class="write-title">Bear</h2>
+    <p class="write-date" id="write-date"></p>
+    <p class="write-subtitle">You are the anvil today. Endure. Reflect. Prepare.</p>
+  </div>
+  <textarea id="write-textarea" placeholder="What are you bearing today? What shapes you?" rows="8"></textarea>
+  <div class="write-actions">
+    <span class="char-count" id="write-chars">0 chars</span>
+    <button class="save-btn" id="write-save" disabled onclick="saveEntry()">Seal Entry</button>
+  </div>
+</div>
+
+<!-- ============ STRIKE ============ -->
+<div id="strike-view" class="view">
+  <button class="back-btn" onclick="showView('home')">← Back</button>
+  <div class="write-header">
+    <div id="strike-hammer-wrap">
+      <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
+        <defs>
+          <linearGradient id="hammerGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FF6B35"/>
+            <stop offset="100%" stop-color="#FFB347"/>
+          </linearGradient>
+          <filter id="hammerGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g filter="url(#hammerGlow)">
+          <rect x="28" y="24" width="6" height="32" rx="2" fill="#8B6914"/>
+          <rect x="14" y="8" width="34" height="18" rx="3" fill="url(#hammerGrad)"/>
+          <rect x="14" y="8" width="34" height="4" rx="2" fill="#FFD700" opacity="0.5"/>
+        </g>
+      </svg>
+    </div>
+    <h2 class="write-title strike-title">Strike</h2>
+    <p class="write-date" id="strike-date"></p>
+    <p class="write-subtitle strike-sub">7 days forged. The hammer is yours. Declare your intention.</p>
+  </div>
+  <textarea id="strike-textarea" class="strike-ta" placeholder="What will you strike into being? What intention do you forge?" rows="8"></textarea>
+  <div class="write-actions">
+    <span class="char-count" id="strike-chars">0 chars</span>
+    <button class="save-btn strike-save" id="strike-save" disabled onclick="saveStrike()">⚡ Strike</button>
+  </div>
+</div>
+
+<!-- ============ HISTORY ============ -->
+<div id="history-view" class="view">
+  <button class="back-btn" onclick="showView('home')">← Back</button>
+  <h2 class="history-title">Forged Entries</h2>
+  <div id="history-content"></div>
+</div>
+
+<div id="flash-overlay" style="display:none" class="strike-flash"></div>
+
+<script>
+// ---- DATA ----
+const DAYS_FOR_STRIKE = 7;
+
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem('ah-entries') || '{}'); } catch { return {}; }
+}
+function setEntries(e) { localStorage.setItem('ah-entries', JSON.stringify(e)); }
+function getStrikes() {
+  try { return JSON.parse(localStorage.getItem('ah-strikes') || '[]'); } catch { return []; }
+}
+function setStrikesData(s) { localStorage.setItem('ah-strikes', JSON.stringify(s)); }
+
+function todayKey() { return new Date().toISOString().split('T')[0]; }
+function formatDate(d) {
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function dayLabel(d) {
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
+}
+
+function getStreak() {
+  const entries = getEntries();
+  if (!Object.keys(entries).length) return 0;
+  let count = 0;
+  let d = new Date(todayKey() + 'T12:00:00');
+  while (true) {
+    const key = d.toISOString().split('T')[0];
+    if (entries[key]) { count++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return count;
+}
+
+function getLast7() {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  return days;
+}
+
+// ---- VIEWS ----
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(name + '-view').classList.add('active');
+  if (name === 'home') renderHome();
+  if (name === 'write') { renderWriteDate(); setTimeout(() => document.getElementById('write-textarea').focus(), 100); }
+  if (name === 'strike') { renderStrikeDate(); setTimeout(() => document.getElementById('strike-textarea').focus(), 100); }
+  if (name === 'history') renderHistory();
+}
+
+// ---- HOME ----
+function renderHome() {
+  const entries = getEntries();
+  const strikes = getStrikes();
+  const streak = getStreak();
+  const todayWritten = !!entries[todayKey()];
+  const canStrike = streak >= DAYS_FOR_STRIKE && !todayWritten;
+  const streakMod = streak % DAYS_FOR_STRIKE;
+  const daysUntil = todayWritten
+    ? DAYS_FOR_STRIKE - (streakMod === 0 ? DAYS_FOR_STRIKE : streakMod)
+    : streak >= DAYS_FOR_STRIKE ? 0 : DAYS_FOR_STRIKE - streak;
+
+  document.getElementById('streak-num').textContent = streak;
+
+  // Week tracker
+  const tracker = document.getElementById('week-tracker');
+  tracker.innerHTML = '';
+  getLast7().forEach(date => {
+    const hasEntry = !!entries[date];
+    const isToday = date === todayKey();
+    const isStrike = entries[date]?.isStrike;
+    const dotCls = ['dot'];
+    if (isStrike) dotCls.push('strike-dot');
+    else if (hasEntry) dotCls.push('filled');
+    if (isToday && !hasEntry) dotCls.push('today');
+    if (isToday && hasEntry) dotCls.push('today', 'filled');
+    const labelCls = ['day-label'];
+    if (isToday) labelCls.push('today-label');
+    else if (hasEntry) labelCls.push('active');
+
+    tracker.innerHTML += `
+      <div class="day-dot">
+        <div class="${dotCls.join(' ')}">${isStrike ? '⚡' : ''}</div>
+        <span class="${labelCls.join(' ')}">${dayLabel(date)}</span>
+      </div>`;
+  });
+
+  // Status
+  const status = document.getElementById('status-text');
+  if (todayWritten) {
+    status.textContent = daysUntil === 0
+      ? "You've struck today. The iron remembers."
+      : `${daysUntil} more day${daysUntil !== 1 ? 's' : ''} until you can strike.`;
+  } else if (canStrike) {
+    status.textContent = "The iron is hot. You've earned the hammer.";
+  } else if (streak === 0) {
+    status.textContent = "Begin bearing. Write your first entry.";
+  } else {
+    status.textContent = `Keep bearing. ${daysUntil} day${daysUntil !== 1 ? 's' : ''} until the hammer is yours.`;
+  }
+
+  // Actions
+  const actions = document.getElementById('home-actions');
+  actions.innerHTML = '';
+  if (!todayWritten) {
+    const btn = document.createElement('button');
+    btn.className = 'primary-btn' + (canStrike ? ' can-strike' : '');
+    btn.innerHTML = canStrike ? '⚡ Strike' : '🔨 Bear Today';
+    btn.onclick = () => showView(canStrike ? 'strike' : 'write');
+    actions.appendChild(btn);
+  }
+  const histBtn = document.createElement('button');
+  histBtn.className = 'secondary-btn';
+  histBtn.innerHTML = 'Past Entries' + (strikes.length ? ` <span class="strike-badge">${strikes.length} ⚡</span>` : '');
+  histBtn.onclick = () => showView('history');
+  actions.appendChild(histBtn);
+
+  // Hammer glow
+  const hammer = document.getElementById('home-hammer');
+  if (canStrike) {
+    hammer.querySelector('rect:nth-child(2)').setAttribute('fill', '#FF6B35');
+  }
+}
+
+// ---- WRITE ----
+function renderWriteDate() {
+  document.getElementById('write-date').textContent = formatDate(todayKey());
+  document.getElementById('write-textarea').value = '';
+  document.getElementById('write-chars').textContent = '0 chars';
+  document.getElementById('write-save').disabled = true;
+}
+document.getElementById('write-textarea').addEventListener('input', function() {
+  document.getElementById('write-chars').textContent = this.value.length + ' chars';
+  document.getElementById('write-save').disabled = !this.value.trim();
+});
+
+function saveEntry() {
+  const text = document.getElementById('write-textarea').value.trim();
+  if (!text) return;
+  const entries = getEntries();
+  entries[todayKey()] = { text, time: new Date().toISOString() };
+  setEntries(entries);
+  showView('home');
+}
+
+// ---- STRIKE ----
+function renderStrikeDate() {
+  document.getElementById('strike-date').textContent = formatDate(todayKey());
+  document.getElementById('strike-textarea').value = '';
+  document.getElementById('strike-chars').textContent = '0 chars';
+  document.getElementById('strike-save').disabled = true;
+}
+document.getElementById('strike-textarea').addEventListener('input', function() {
+  document.getElementById('strike-chars').textContent = this.value.length + ' chars';
+  document.getElementById('strike-save').disabled = !this.value.trim();
+});
+
+function saveStrike() {
+  const text = document.getElementById('strike-textarea').value.trim();
+  if (!text) return;
+
+  // Flash
+  const flash = document.getElementById('flash-overlay');
+  flash.style.display = 'block';
+  document.getElementById('strike-hammer-wrap').classList.add('hammer-animate');
+
+  // Save
+  const entries = getEntries();
+  entries[todayKey()] = { text, time: new Date().toISOString(), isStrike: true };
+  setEntries(entries);
+  const strikes = getStrikes();
+  strikes.push({ text, date: todayKey(), time: new Date().toISOString() });
+  setStrikesData(strikes);
+
+  setTimeout(() => {
+    flash.style.display = 'none';
+    document.getElementById('strike-hammer-wrap').classList.remove('hammer-animate');
+    showView('home');
+  }, 1500);
+}
+
+// ---- HISTORY ----
+let selectedDate = null;
+function renderHistory() {
+  const entries = getEntries();
+  const content = document.getElementById('history-content');
+  const allDates = Object.keys(entries).sort((a, b) => a > b ? -1 : 1);
+
+  if (selectedDate && entries[selectedDate]) {
+    const e = entries[selectedDate];
+    content.innerHTML = `
+      <button class="back-to-list" onclick="selectedDate=null;renderHistory()">← All Entries</button>
+      <div class="history-card ${e.isStrike ? 'strike-card' : 'bear-card'}">
+        <div class="history-card-head">
+          <span class="history-card-date">${formatDate(selectedDate)}</span>
+          ${e.isStrike ? '<span class="strike-tag">⚡ Strike</span>' : ''}
+        </div>
+        <p class="history-card-text">${escapeHtml(e.text)}</p>
+      </div>`;
+    return;
+  }
+
+  selectedDate = null;
+  if (!allDates.length) {
+    content.innerHTML = '<p class="empty-text">No entries yet. Begin your journey at the anvil.</p>';
+    return;
+  }
+
+  content.innerHTML = '<div class="history-list">' + allDates.map((date, i) => {
+    const e = entries[date];
+    const preview = e.text.length > 60 ? e.text.slice(0, 60) + '...' : e.text;
+    return `<button class="history-item ${e.isStrike ? 'strike-item' : ''}" style="animation:fadeSlideUp 0.3s ease ${i * 0.05}s both" onclick="selectedDate='${date}';renderHistory()">
+      <div>
+        <span class="history-item-date">${formatDate(date)}</span>
+        <span class="history-item-preview">${escapeHtml(preview)}</span>
+      </div>
+      ${e.isStrike ? '<span style="font-size:14px">⚡</span>' : ''}
+    </button>`;
+  }).join('') + '</div>';
+}
+
+function escapeHtml(t) {
+  const div = document.createElement('div');
+  div.textContent = t;
+  return div.innerHTML;
+}
+
+// ---- INIT ----
+renderHome();
+</script>
+</body>
+</html>
