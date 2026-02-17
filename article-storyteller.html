@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Storyteller's Edge — Qiao</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-400: #34d399;
+    --green-500: #10b981;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'Outfit', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    line-height: 1.7;
+    color: var(--slate-300);
+    background: var(--slate-900);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+    padding: 16px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .nav-brand {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .nav-brand:hover { color: var(--green-400); }
+  .nav-back {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--slate-400);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+  .nav-back:hover { color: var(--green-400); }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 140px 24px 60px;
+  }
+  .hero-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--green-500);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  .hero-meta {
+    font-size: 0.85rem;
+    color: var(--slate-500);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* ── ARTICLE ── */
+  .article {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  .article p {
+    font-size: 1.05rem;
+    margin-bottom: 1.6em;
+    color: var(--slate-300);
+  }
+
+  .article h2 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: #fff;
+    margin-top: 3em;
+    margin-bottom: 0.8em;
+    letter-spacing: -0.01em;
+  }
+
+  .article em { color: var(--slate-200); font-style: italic; }
+
+  .article strong { color: var(--slate-100); font-weight: 600; }
+
+  .article blockquote {
+    border-left: 3px solid var(--green-500);
+    padding: 16px 20px;
+    margin: 2em 0;
+    background: rgba(16, 185, 129, 0.04);
+    border-radius: 0 6px 6px 0;
+  }
+  .article blockquote p {
+    color: var(--slate-300);
+    margin-bottom: 0;
+    font-style: italic;
+  }
+
+  .article hr {
+    border: none;
+    border-top: 1px solid var(--slate-700);
+    margin: 3em 0;
+  }
+
+  .article ul {
+    margin-bottom: 1.6em;
+    padding-left: 1.5em;
+  }
+  .article li {
+    margin-bottom: 0.6em;
+    color: var(--slate-300);
+    font-size: 1.05rem;
+  }
+
+  .article code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: rgba(51, 65, 85, 0.4);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--green-400);
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(52, 211, 153, 0.04));
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 2.5em 0;
+  }
+  .callout p { margin-bottom: 0.8em; }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ── GAME LINK ── */
+  .game-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--green-400);
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .game-link:hover {
+    background: rgba(16, 185, 129, 0.18);
+    border-color: var(--green-400);
+  }
+
+  /* ── FOOTER ── */
+  .article-footer {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    border-top: 1px solid var(--slate-700);
+    text-align: center;
+  }
+  .article-footer p {
+    font-size: 0.9rem;
+    color: var(--slate-500);
+    line-height: 1.8;
+  }
+  .article-footer a {
+    color: var(--green-400);
+    text-decoration: none;
+  }
+  .article-footer a:hover { text-decoration: underline; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--slate-200);
+    text-align: center;
+    margin: 2.5em 0;
+    padding: 0 20px;
+    line-height: 1.5;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero { padding: 120px 20px 40px; }
+    .article { padding: 0 20px 60px; }
+    .hero h1 { font-size: 1.8rem; }
+    .article h2 { font-size: 1.3rem; }
+    .pull-quote { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">Qiao</a>
+  <a href="index.html#writing" class="nav-back">← Back to Writing</a>
+</nav>
+
+<header class="hero">
+  <p class="hero-label">Product Narrative</p>
+  <h1>The Storyteller's Edge: Why Narrative Builders Will Define the Next Era</h1>
+  <div class="hero-meta">
+    <span>Qiao</span>
+    <span>·</span>
+    <span>February 2026</span>
+    <span>·</span>
+    <span>6 min read</span>
+  </div>
+</header>
+
+<article class="article">
+
+  <p>Language is the vessel of thought. When it is blocked, our thinking dulls, leaving only a blur of sensations. I built <em>Adrift Poet</em> to manifest this struggle—challenging users to find the precise words needed to break the cycle and "recharge" their cognitive core.</p>
+
+  <p>But this isn't an article about a game. It's about what building that game taught me about building anything at all.</p>
+
+  <hr>
+
+  <h2>The Problem with Building Without Story</h2>
+
+  <p>Most software begins with a feature list. A login screen. A dashboard. A notification system. The builder asks: <em>what should it do?</em></p>
+
+  <p>The storyteller asks a different question: <em>what should it feel like?</em></p>
+
+  <p>When I started Adrift Poet, I didn't start with a tech stack or a wireframe. I started with a story:</p>
+
+  <div class="callout">
+    <p><strong>Backstory:</strong> Year 3002. An adrift robot, out of power, lost in deep space.</p>
+    <p><strong>Mechanic:</strong> Create collage poems to recharge its core. Each poem fuels a journey to a new world. Write to survive; wander to discover.</p>
+  </div>
+
+  <p>That single narrative frame shaped everything downstream. Energy drains with every action because <em>searching for meaning is exhausting</em>. Wrong guesses cost power because <em>language punishes imprecision</em>. Poems recharge the core because <em>the right words, assembled with care, genuinely restore something in us</em>.</p>
+
+  <p>None of these mechanics needed a product manager to spec out. The story wrote the design.</p>
+
+  <h2>How I Actually Built It</h2>
+
+  <p>I'll be honest—I'm learning Java. Adrift Poet was my first real project. I didn't know what an ArrayList was when I started.</p>
+
+  <p>But I knew the story I wanted to tell. And that clarity carried me through every technical wall I hit.</p>
+
+  <p>Here's how it went: I described the game to Claude—not in technical terms, but in narrative ones. A robot. Dying. Collecting word fragments across alien worlds. Assembling collage poems to survive. That description contained, without my realizing it, the entire object model: a <code>Robot</code> with energy and an inventory, <code>World</code> objects with discoverable fragments, <code>PoemTemplate</code> objects that check whether you've gathered the right words.</p>
+
+  <p class="pull-quote">The story <em>was</em> the architecture.</p>
+
+  <p>When I later adapted the game for the web, I added a word puzzle mechanic—you don't just find words, you <em>decode</em> them, letter by letter, with a hint tied to the world's theme. "A fading glow from a dying fire." Five blanks. Each wrong guess drains your core. This turned passive collection into active problem-solving, and the game became something people actually wanted to play.</p>
+
+  <p>Again, the mechanic emerged from the narrative. The robot isn't picking up items off the ground—it's intercepting corrupted signals and reconstructing meaning from noise. That's not a feature request. That's a story beat.</p>
+
+  <h2>Decomposition: The Storyteller's Secret Weapon</h2>
+
+  <p>Here's something nobody talks about: the hardest part of building isn't the building. It's knowing <em>what to build next</em>.</p>
+
+  <p>Adrift Poet sounds ambitious on paper—six alien worlds, twenty-four words with thematic hints, a puzzle system, animated poem reveals, energy management, win and death states. If I'd looked at that as one problem, I would have frozen.</p>
+
+  <p>But stories decompose naturally. A story is already a sequence of small moments.</p>
+
+  <p>I didn't build "a game." I built a robot that has energy. Then I built a world it could visit. Then I gave that world words to find. Then I made finding words into a puzzle. Then I made puzzles cost energy. Then I made poems that give energy back. Each piece was small enough to understand, test, and finish in one sitting.</p>
+
+  <p>This is the skill that separates people who ship from people who stall: the ability to look at something overwhelming and break it into pieces so small they feel almost trivial. And narrative thinking trains this instinct, because every story is already decomposed into scenes, beats, and moments. You don't write a novel—you write a sentence, then another, then another.</p>
+
+  <p>The same principle scales to any problem. A dashboard isn't "a dashboard"—it's a login, then a data fetch, then a chart, then a filter. A business isn't "a business"—it's a customer, then a problem, then a solution, then a channel. The storyteller sees the sequence because they've been trained to think in scenes.</p>
+
+  <h2>Why This Matters Now</h2>
+
+  <p>We are entering an era where the cost of building has collapsed. AI can generate code, design interfaces, deploy infrastructure. The technical barrier that once separated builders from dreamers is dissolving.</p>
+
+  <p>So what's left? Two things.</p>
+
+  <p><strong>Taste.</strong> The ability to make a thousand micro-decisions that nobody will consciously notice but everyone will <em>feel</em>. Taste is choosing IBM Plex Mono over Arial because it feels like a transmission from deep space. Taste is making the energy bar glow red below 10% without anyone asking for it. Taste is the half-second pause before a poem line appears—technically unnecessary, emotionally essential. Taste cannot be spec'd, roadmapped, or A/B tested. It comes from caring about details that don't show up in metrics but show up in how people <em>describe your work to others</em>.</p>
+
+  <p><strong>Decomposition.</strong> The ability to look at a foggy, ambitious vision and carve a clear first step. AI can build whatever you ask—but you have to know what to ask. The person who says "build me a game" gets generic output. The person who says "build me a robot with an energy integer that decreases by 1 when it scans and by 2 when it explores" gets something real. The gap between those two prompts is the gap between dreaming and shipping.</p>
+
+  <p class="pull-quote">Tools are abundant. But a clear story—paired with the discipline to break it into buildable pieces? That remains rare. That remains human.</p>
+
+  <h2>The Storyteller Builds Different</h2>
+
+  <p>When a storyteller builds, they make decisions that a pure technician wouldn't. They ask:</p>
+
+  <ul>
+    <li>What emotion should the user feel at this exact moment?</li>
+    <li>What's the <em>pacing</em> of this experience?</li>
+    <li>What information do I withhold, and when do I reveal it?</li>
+  </ul>
+
+  <p>In Adrift Poet, when you fail a puzzle, the game says "Signal faded before decoding"—not "Wrong answer, try again." When you die, the robot "drifts silently into the endless dark, carrying unfinished poems that will never be read"—not "Game Over." These are not engineering decisions. They are taste decisions, informed by story. And they are the decisions that separate software people use from software people <em>remember</em>.</p>
+
+  <h2>Build the Story First</h2>
+
+  <p>If you're building something—an app, a game, a tool, a company—try this: before you write a single line of code, write the story. Not the pitch deck. Not the feature list. The <em>story</em>.</p>
+
+  <p>Who is the character? What do they want? What stands in their way? What does it feel like when they break through?</p>
+
+  <p>Then decompose it. What's the smallest scene you can build today? Not the whole movie—just the opening shot.</p>
+
+  <p>Then apply taste. Every micro-decision is a chance to make someone feel something. Take that chance.</p>
+
+  <p>The story is the blueprint. Decomposition is the construction plan. Taste is the craftsmanship. Everything else is scaffolding.</p>
+
+  <hr>
+
+  <p><em>Adrift Poet</em> is a word puzzle game about a robot surviving deep space through poetry. I built it while learning Java, with Claude as my collaborator. The story came first. The code came after.</p>
+
+  <p><a href="adrift-poet.html" class="game-link">▸ Play Adrift Poet</a></p>
+
+</article>
+
+<footer class="article-footer">
+  <p>Written by <a href="index.html">Qiao</a> · February 2026</p>
+  <p>Part of the <a href="index.html#writing">Product Narrative</a> series</p>
+</footer>
+
+</body>
+</html>
