@@ -554,7 +554,7 @@ function guessLetter(letter){
   letter = letter.toLowerCase();
   // Already used?
   if(pzWrong.includes(letter)) return;
-  if(pzRevealed.some((r,i)=>r&&pzWord[i]===letter)) return;
+  if(pzWord.split('').every((ch,i)=>ch!==letter||pzRevealed[i])) return;
 
   let found=false;
   for(let i=0;i<pzWord.length;i++){
