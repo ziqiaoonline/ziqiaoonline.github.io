@@ -1,4 +1,4 @@
-# Qiao's Technical Portfolio and Digital Lab
+# ZiQiao's Technical Portfolio and Digital Lab
 
 This repository hosts my personal website and creative engineering projects, focusing on the intersection of Software Engineering, Anthropology, and Technical Narrative.
 
